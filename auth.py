@@ -1,8 +1,9 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from requests import post
 from sys import exit
-from webbrowser import open
-from urllib.parse import urlencode, urlparse, parse_qs                    
+from urllib.parse import urlencode, urlparse, parse_qs
+import webbrowser
+import json                    
 
 # The client id and client secret associated with my account
 client_id: int = 22257
@@ -47,14 +48,12 @@ class ReqHandler(BaseHTTPRequestHandler):
             self.send_error(401, "Unauthorized Request")
         else:
             # If successful, we will redirect the user to an Authorization Successful page
-            # and store the access token in a new file.
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(b'Authorization Successful!')
 
-            access_token = self.exchange_authorization_code(authorization_code)
-            print("\n\nHere is the access token: " + access_token)
+            self.exchange_authorization_code(authorization_code)
 
 
     def exchange_authorization_code(self, authorization_code):
@@ -81,10 +80,11 @@ class ReqHandler(BaseHTTPRequestHandler):
         # Handle the response
         if response.status_code == 200: # If successful
             token_data = response.json()
-            access_token = token_data.get('access_token')
-            refresh_token = token_data.get('refresh_token')
-            expires_in = token_data.get('expires_in')
-            return access_token
+            
+            # Store the info into a json file
+            with open('config.json', 'w') as file:
+                file.write(json.dumps(token_data, indent=4))
+
         else: # If failed
             print(f"Token request failed with status code {response.status_code}")
             exit(1)
@@ -115,6 +115,7 @@ class ReqHandler(BaseHTTPRequestHandler):
             expires_in = token_data.get('expires_in')
         else: # If failed.
             print(f"Token refresh failed with status code {response.status_code}")
+            exit(1)
 
 def requestAuth():
     params = {
@@ -129,7 +130,7 @@ def requestAuth():
     url = '{}{}{}'.format(auth_endpoint,'?',urlencode(params))
 
     # Open this URL
-    open(url)
+    webbrowser.open(url)
 
 def run_server():
     # Create an HTTPServer object with the desired host and port
@@ -140,7 +141,7 @@ def run_server():
     server.serve_forever()
 
 # Run the server
-# if __name__ == "__main__":
-#     requestAuth()
-#     run_server()
+if __name__ == "__main__":
+    requestAuth()
+    run_server()
     
