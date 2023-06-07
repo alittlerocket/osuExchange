@@ -110,9 +110,10 @@ class ReqHandler(BaseHTTPRequestHandler):
         # If succeeded
         if response.status_code == 200:
             token_data = response.json()
-            new_access_token = token_data.get('access_token')
-            new_refresh_token = token_data.get('refresh_token')
-            expires_in = token_data.get('expires_in')
+            
+            # Store the info into a json file
+            with open('config.json', 'w') as file:
+                file.write(json.dumps(token_data, indent=4))
         else: # If failed.
             print(f"Token refresh failed with status code {response.status_code}")
             exit(1)
