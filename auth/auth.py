@@ -5,9 +5,9 @@ from urllib.parse import urlencode, urlparse, parse_qs
 import webbrowser
 import json                    
 
-# The client id and client secret associated with my account
-client_id: int = 22257
-client_secret: str = open('C:\\osuExchange\\auth\\secret', 'r').read()
+# The client id and client secret associated
+client_id: str
+client_secret: str
 
 # We're hosting the server locally and we will be using funny port 
 HOST: str = 'localhost'
@@ -22,6 +22,10 @@ token_endpoint: str = "https://osu.ppy.sh/oauth/token"
 
 # OAuth2 endpoint
 auth_endpoint: str = "https://osu.ppy.sh/oauth/authorize"
+
+class OsuAuthenticationException(BaseException):
+    def __init__(self, message: str):
+        super().__init__(message)
 
 # Allows for customization of GET and POST handling.
 class ReqHandler(BaseHTTPRequestHandler):
@@ -53,72 +57,73 @@ class ReqHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Authorization Successful!')
 
-            self.exchange_authorization_code(authorization_code)
+            # Shut down the server.
+            self.server.shutdown()
+            exchange_authorization_code(authorization_code)
 
 
-    def exchange_authorization_code(self, authorization_code):
-        # Create the payload for the token request
-        data = {
-            'code': authorization_code,
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'redirect_uri': redirect_uri,
-            'grant_type': 'authorization_code'
-        }
+def exchange_authorization_code(authorization_code):
+    # Create the payload for the token request
+    data = {
+        'code': authorization_code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
 
-        # Headers
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
+    # Headers
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
 
-        # Send token request
-        response = post(url=token_endpoint,
-                            data=data,
-                            headers=headers)
+    # Send token request
+    response = post(url=token_endpoint,
+                        data=data,
+                        headers=headers)
+    
+    # Handle the response
+    if response.status_code == 200: # If successful
+        token_data = response.json()
         
-        # Handle the response
-        if response.status_code == 200: # If successful
-            token_data = response.json()
-            
-            # Store the info into a json file
-            with open('config.json', 'w') as file:
-                file.write(json.dumps(token_data, indent=4))
+        # Store the info into a json file
+        with open('config.json', 'w') as file:
+            file.write(json.dumps(token_data, indent=4))
 
-        else: # If failed
-            print(f"Token request failed with status code {response.status_code}")
-            exit(1)
+    else: # If failed
+        raise OsuAuthenticationException(f"Token request failed with status code {response.status_code}")
 
-    def refresh_access_token(refresh_token):
-        # Necessary body parameters
-        data = {
-            'refresh_token': refresh_token,
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'grant_type': 'refresh_token'
-        }
+def refresh_access_token(refresh_token):
+    # Necessary body parameters
+    data = {
+        'refresh_token': refresh_token,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'grant_type': 'refresh_token'
+    }
 
-        # Necessary headers
-        headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
+    # Necessary headers
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
 
-        # Make the post request.
-        response = post(token_endpoint, data=data, headers=headers)
+    # Make the post request.
+    response = post(token_endpoint, data=data, headers=headers)
 
-        # If succeeded
-        if response.status_code == 200:
-            token_data = response.json()
-            
-            # Store the info into a json file
-            with open('config.json', 'w') as file:
-                file.write(json.dumps(token_data, indent=4))
-        else: # If failed.
-            print(f"Token refresh failed with status code {response.status_code}")
-            exit(1)
+    # If succeeded
+    if response.status_code == 200:
+        token_data = response.json()
+        
+        # Store the info into a json file
+        with open('config.json', 'w') as file:
+            file.write(json.dumps(token_data, indent=4))
+    else: # If failed.
+        print(f"Token refresh failed with status code {response.status_code}")
+        exit(1)
 
-def requestAuth():
+def request_auth(client_id):
     params = {
         'client_id' : client_id,            # client_id
         'redirect_uri' : redirect_uri,      # redirect_uri
@@ -141,8 +146,16 @@ def run_server():
     print("Server up with {}:{}".format(HOST, PORT))
     server.serve_forever()
 
+# Client interface
+# Pass client id as a string
+def login(_client_id: str, _client_secret: str):
+    global client_id, client_secret
+    client_id = _client_id
+    client_secret = _client_secret
+
+    request_auth(client_id)
+    run_server()
+
 # Run the server
 if __name__ == "__main__":
-    requestAuth()
-    run_server()
-    
+    login(client_id, client_secret)
