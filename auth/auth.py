@@ -7,7 +7,7 @@ import json
 
 # The client id and client secret associated with my account
 client_id: int = 22257
-client_secret: str = '6u2R8t1zbjA3uLY0Cy8MrjIeF79qFnqPyBqBhHP3'
+client_secret: str = open('C:\\osuExchange\\auth\\secret', 'r').read()
 
 # We're hosting the server locally and we will be using funny port 
 HOST: str = 'localhost'
