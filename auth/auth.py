@@ -5,30 +5,14 @@ from urllib.parse import urlencode, urlparse, parse_qs
 import webbrowser
 import json                    
 
-# The client id and client secret associated
-client_id: str
-client_secret: str
-
-# We're hosting the server locally and we will be using funny port 
-HOST: str = 'localhost'
-PORT: int = 6969
-
-# We will be using from now on, so make sure nothing interferes with it
-redirect_uri: str = f'http://localhost:{PORT}'    
-
-# We will send a request to the osu! token endpoint and retrieve the access token
-# with this base_url. It can also be used to refresh the access token
-token_endpoint: str = "https://osu.ppy.sh/oauth/token"
-
-# OAuth2 endpoint
-auth_endpoint: str = "https://osu.ppy.sh/oauth/authorize"
-
 class OsuAuthenticationException(BaseException):
     def __init__(self, message: str):
         super().__init__(message)
 
 # Allows for customization of GET and POST handling.
 class ReqHandler(BaseHTTPRequestHandler):
+    path = ''
+
     # Handling the options request, see why in the README
     def do_OPTIONS(self):
         self.send_response(200)
@@ -40,7 +24,9 @@ class ReqHandler(BaseHTTPRequestHandler):
     # Handles the get request. This includes retriving the authorization code while making
     # a post request to exchange that code for the access token.
     def do_GET(self):
-        if self.path == '/favicon.ico':
+        ReqHandler.path = self.path
+
+        if not self.path.startswith('/?code='):
             return
 
         # Just using some fancy parsing tools to get the authorization code.
@@ -57,105 +43,113 @@ class ReqHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Authorization Successful!')
 
-            # Shut down the server.
-            self.server.shutdown()
-            exchange_authorization_code(authorization_code)
+        # Shut down the server.
+        # server.shutdown()
+        # print('here')
+
+class OsuAuthenticator:
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, token_endpoint: str, auth_endpoint: str):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+        self.token_endpoint = token_endpoint
+        self.auth_endpoint = auth_endpoint
 
 
-def exchange_authorization_code(authorization_code):
-    # Create the payload for the token request
-    data = {
-        'code': authorization_code,
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': redirect_uri,
-        'grant_type': 'authorization_code'
-    }
+    def exchange_authorization_code(self, authorization_code: str) -> dict:
+        # Create the payload for the token request
+        data = {
+            'code': authorization_code,
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'redirect_uri': self.redirect_uri,
+            'grant_type': 'authorization_code'
+        }
 
-    # Headers
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+        # Headers
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
 
-    # Send token request
-    response = post(url=token_endpoint,
-                        data=data,
-                        headers=headers)
+        # Send token request
+        response = post(url="https://osu.ppy.sh/oauth/token",
+                            data=data,
+                            headers=headers)
+        
+        # Handle the response
+        if response.status_code == 200: # If successful
+            return response.json()
+
+        else: # If failed
+            raise OsuAuthenticationException(f"Token request failed with status code {response.status_code}")
+
+    def request_auth(self, client_id):
+        params = {
+            'client_id' : client_id,            # client_id
+            'redirect_uri' : self.redirect_uri,      # redirect_uri
+            'response_type' : 'code',           # Also should always be this
+            'scope' : 'public identify',        # Should always be this
+            'state' : 'randomval'               # For security purposes
+        }
+
+        # Format the correct authentication URL
+        url = '{}{}{}'.format('https://osu.ppy.sh/oauth/authorize','?',urlencode(params))
+
+        # Open this URL
+        webbrowser.open(url)
     
-    # Handle the response
-    if response.status_code == 200: # If successful
-        token_data = response.json()
-        
-        # Store the info into a json file
-        with open('config.json', 'w') as file:
-            file.write(json.dumps(token_data, indent=4))
+    # Client interface
+    # Pass client id as a string
+    def get_access_token(self, authorization_code: str) -> dict:
+        return self.exchange_authorization_code(authorization_code)
 
-    else: # If failed
-        raise OsuAuthenticationException(f"Token request failed with status code {response.status_code}")
+    def refresh_access_token(self, refresh_token: str) -> dict:
+        # Necessary body parameters
+        data = {
+            'refresh_token': refresh_token,
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'grant_type': 'refresh_token'
+        }
 
-def refresh_access_token(refresh_token):
-    # Necessary body parameters
-    data = {
-        'refresh_token': refresh_token,
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'grant_type': 'refresh_token'
-    }
+        # Necessary headers
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
 
-    # Necessary headers
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+        # Make the post request.
+        response = post('https://osu.ppy.sh/oauth/authorize', 
+                        data=data, 
+                        headers=headers)
 
-    # Make the post request.
-    response = post(token_endpoint, data=data, headers=headers)
+        # If succeeded
+        if response.status_code == 200:
+            return response.json()
 
-    # If succeeded
-    if response.status_code == 200:
-        token_data = response.json()
-        
-        # Store the info into a json file
-        with open('config.json', 'w') as file:
-            file.write(json.dumps(token_data, indent=4))
-    else: # If failed.
-        print(f"Token refresh failed with status code {response.status_code}")
-        exit(1)
+        else: # If failed.
+            raise OsuAuthenticationException(f"Token refresh failed with status code {response.status_code}")
 
-def request_auth(client_id):
-    params = {
-        'client_id' : client_id,            # client_id
-        'redirect_uri' : redirect_uri,      # redirect_uri
-        'response_type' : 'code',           # Also should always be this
-        'scope' : 'public identify',        # Should always be this
-        'state' : 'randomval'               # For security purposes
-    }
+def run_server(server_address):
+    """Starts the server and listens for requests."""
+    print(f"Server up with {server_address[0]}:{server_address[1]}")
+    httpd = HTTPServer(server_address, ReqHandler)
+    httpd.handle_request()
 
-    # Format the correct authentication URL
-    url = '{}{}{}'.format(auth_endpoint,'?',urlencode(params))
+def parse_uri(redirect_uri: str):
+    parse_uri = redirect_uri.split(':')
+    return (parse_uri[1][2:], int(parse_uri[-1]))
 
-    # Open this URL
-    webbrowser.open(url)
+def get_access_token(client_id: str, client_secret: str, redirect_uri: str):
+    authenticator = OsuAuthenticator(client_id, 
+                                     client_secret, 
+                                     redirect_uri, 
+                                     'https://osu.ppy.sh/oauth/authorize', 
+                                     'https://osu.ppy.sh/oauth/authorize')
 
-def run_server():
-    # Create an HTTPServer object with the desired host and port
-    server = HTTPServer((HOST, PORT), ReqHandler)
+    authenticator.request_auth(client_id)
+    run_server(parse_uri(redirect_uri))
+    authorization_code = parse_qs(urlparse(ReqHandler.path).query).get('code', [''])[0]
+    return authenticator.get_access_token(authorization_code)
 
-    # Start it
-    print("Server up with {}:{}".format(HOST, PORT))
-    server.serve_forever()
-
-# Client interface
-# Pass client id as a string
-def login(_client_id: str, _client_secret: str):
-    global client_id, client_secret
-    client_id = _client_id
-    client_secret = _client_secret
-
-    request_auth(client_id)
-    run_server()
-
-# Run the server
-if __name__ == "__main__":
-    login(client_id, client_secret)
