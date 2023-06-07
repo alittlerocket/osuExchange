@@ -3,9 +3,7 @@
 This code handles the entirety of the OAuth2 Authorization flow for the
 osu! API
 
-=======================================================================
 TO GET AN AUTHENTICATION TOKEN, RUN OUR LOGIN() FUNCTION
-=======================================================================
 
 "Modules and what they are used for":
 - http.server.HTTPServer and http.server.BaseHTTPRequestHandler are used to create the local server.
