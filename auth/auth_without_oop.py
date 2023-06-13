@@ -1,3 +1,6 @@
+# https://osu.ppy.sh/docs/index.html#authorization-code-grant
+# Read this
+
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from requests import post
 from urllib.parse import urlencode, urlparse, parse_qs
