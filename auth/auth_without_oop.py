@@ -14,14 +14,22 @@ class OAuth2AccessToken:
 		self.refresh_token: str = json['refresh_token']
 		self.token_type: str = json['token_type']
 
-def get_access_token(client_id: str, client_secret: str, redirect_uri: str) -> OAuth2AccessToken:
+def get_access_token(client_id: str, client_secret: str, redirect_uri: str, port: int) -> OAuth2AccessToken:
 	authorization_code: str | None = None
 
 	class CodeHandler(BaseHTTPRequestHandler):
+		def do_OPTIONS(self):
+			self.send_response(200)
+			self.send_header('Access-Control-Allow-Origin', '*')
+			self.send_header('Access-Control-Allow-Methods', 'GET, POST')
+			self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+			self.end_headers()
+
 		def do_GET(self):
 			if not self.path.startswith('/?code='):
 				return
-			code = self.path[7:]
+			query_params = parse_qs(urlparse(self.path).query)
+			code = query_params.get('code', [''])[0]
 			if code == 'access_denied':
 				self.send_error(401, 'You did not authorize the osu! application.')
 				return
@@ -42,7 +50,8 @@ def get_access_token(client_id: str, client_secret: str, redirect_uri: str) -> O
 	open_browser(f'https://osu.ppy.sh/oauth/authorize/?{urlencode(params)}')
 
 	# Wait for the GET request containing the authorization code
-	HTTPServer(('', 6969), CodeHandler).handle_request()
+	print(f'Listening for GET request on port {port}')
+	HTTPServer(('', port), CodeHandler).handle_request()
 
 	if authorization_code is None:
 		raise OsuAuthenticationException('No authentication code received!')
@@ -61,7 +70,7 @@ def get_access_token(client_id: str, client_secret: str, redirect_uri: str) -> O
 		'Content-Type': 'application/x-www-form-urlencoded'
 	}
 
-	resp = post('https://osu.ppy.sh/oauth/token', data=data, headers=headers)
+	resp = post(url='https://osu.ppy.sh/oauth/token', data=urlencode(data), headers=headers)
 
 	if resp.status_code == 200:
 		return OAuth2AccessToken(resp.json())

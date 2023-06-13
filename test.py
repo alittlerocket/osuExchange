@@ -1,4 +1,4 @@
-from auth.auth import get_access_token
+from auth.auth_without_oop import get_access_token
 
-n = get_access_token('22257', '2uF9ngKYzYrrVdApOUStH2e8er73a9cbZpZrsbUw', 'http://localhost:6969')
+n = get_access_token('22807', 'U66rYlKGk6FshCKT6EpGw9WX98VoVFj2mDbOBlaQ', 'http://localhost:6969', 6969)
 print(n)
