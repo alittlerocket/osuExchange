@@ -152,4 +152,3 @@ def get_access_token(client_id: str, client_secret: str, redirect_uri: str):
     run_server(parse_uri(redirect_uri))
     authorization_code = parse_qs(urlparse(ReqHandler.path).query).get('code', [''])[0]
     return authenticator.get_access_token(authorization_code)
-
