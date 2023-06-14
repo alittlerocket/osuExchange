@@ -3,8 +3,8 @@ from datetime import datetime
 # https://osu.ppy.sh/docs/#beatmapcompact-failtimes
 class Failtimes:
 	def __init__(self, json: dict):
-		self.exit: list[int] = json['exit']
-		self.fail: list[int] = json['fail']
+		self.exit: list[int] | None = json.get('exit')
+		self.fail: list[int] | None = json.get('fail')
 		
 # https://osu.ppy.sh/docs/#beatmapcompact
 class BeatmapCompact:
