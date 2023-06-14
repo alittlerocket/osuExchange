@@ -1,16 +1,9 @@
-from requests import get
+from api import get
 from exception import OsuApiException
-from json import JSONEncoder
-from models import *
+from structures import Beatmap, BeatmapAttributes
 
-def get_beatmap(id: int, access_token: str) -> Beatmap:
-	headers = {
-		'Content-Type': 'application/json',
-		'Accept': 'application/json',
-		'Authorization': f'Bearer {access_token}'
-	}
-
-	resp = get(f'https://osu.ppy.sh/api/v2/beatmaps/{id}', headers=headers)
+def get_beatmap(access_token: str, id: int) -> Beatmap:
+	resp = get(access_token, f'/beatmaps/{id}')
 
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
@@ -18,21 +11,26 @@ def get_beatmap(id: int, access_token: str) -> Beatmap:
 	return Beatmap(resp.json())
 
 def get_beatmap_attributes(
-	id: int,
 	access_token: str,
+	id: int,
+
+	# Optional parameters
 	mods: tuple[str],
 	ruleset: str,
 	ruleset_id: int
 ) -> BeatmapAttributes:
-	headers = {
-		'Content-Type': 'application/json',
-		'Accept': 'application/json',
-		'Authorization': f'Bearer {access_token}'
-	}
+	body = {}
 
-	json_encoder = JSONEncoder()
+	if mods is not None:
+		body['mods'] = mods
+	if ruleset is not None:
+		body['ruleset'] = ruleset
+	if ruleset_id is not None:
+		body['ruleset_id'] = ruleset_id
+	
+	resp = get(access_token, f'/beatmaps/{id}/attributes', body_json=body)
 
-	body = {
-		'mods': mods,
-		
-	}
+	if resp.status_code >= 400:
+		raise OsuApiException(resp)
+	
+	return BeatmapAttributes(resp.json())

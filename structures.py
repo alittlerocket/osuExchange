@@ -1,12 +1,12 @@
 from datetime import datetime
 
-# https://osu.ppy.sh/docs/index.html#beatmapcompact-failtimes
+# https://osu.ppy.sh/docs/#beatmapcompact-failtimes
 class Failtimes:
 	def __init__(self, json: dict):
 		self.exit: list[int] = json['exit']
 		self.fail: list[int] = json['fail']
 		
-# https://osu.ppy.sh/docs/index.html#beatmapcompact
+# https://osu.ppy.sh/docs/#beatmapcompact
 class BeatmapCompact:
 	def __init__(self, json: dict):
 		self.beatmapset_id: int = json['beatmapset_id']
@@ -25,7 +25,7 @@ class BeatmapCompact:
 		self.failtimes: Failtimes | None = None if failtimes is None else Failtimes(failtimes)
 		self.max_combo: int | None = json['max_combo']
 
-# https://osu.ppy.sh/docs/index.html#beatmap
+# https://osu.ppy.sh/docs/#beatmap
 # As documented, Beatmap is an extension of BeatmapCompact
 class Beatmap(BeatmapCompact):
 	def __init__(self, json: dict):
@@ -49,6 +49,7 @@ class Beatmap(BeatmapCompact):
 		self.play_count: int = json['playcount']
 		self.ranked: int = json['ranked']
 
+# https://osu.ppy.sh/docs/#beatmapdifficultyattributes
 class BeatmapAttributes:
 	def __init__(self, json: dict):
 		self.max_combo: int = json['max_combo']

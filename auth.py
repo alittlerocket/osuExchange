@@ -1,6 +1,3 @@
-# https://osu.ppy.sh/docs/index.html#authorization-code-grant
-# Read this
-
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from requests import post
 from urllib.parse import urlencode, urlparse, parse_qs
@@ -32,6 +29,7 @@ POST_HEADERS = {
 	'Content-Type': 'application/x-www-form-urlencoded'
 }
 
+# https://osu.ppy.sh/docs/index.html#authorization-code-grant
 def get_access_token(
 		client_id: str,
 		client_secret: str,
@@ -133,6 +131,7 @@ def refresh_access_token(
 	
 	return OsuAccessToken(resp.json())
 
+# https://osu.ppy.sh/docs/#client-credentials-grant
 def get_client_credentials_token(client_id: str, client_secret: str) -> OsuClientCredentialsToken:
 	body_params = {
 		'client_id': client_id,
