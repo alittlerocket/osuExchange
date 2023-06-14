@@ -16,20 +16,6 @@ class OAuth2Scope(Enum):
 	IDENTIFY = 'identify'
 	PUBLIC = 'public'
 
-	@staticmethod
-	def encode_scopes(scopes: list['OAuth2Scope']) -> str:
-		num_scopes: int = len(scopes)
-
-		if num_scopes == 1:
-			return scopes[0].value
-		
-		url_scopes: str = scopes[0].value
-
-		for scope in scopes:
-			url_scopes += f'+{scope.value}'
-		
-		return url_scopes
-
 class OsuClientCredentialsToken:
 	def __init__(self, json: dict):
 		self.access_token: str = json['access_token']
@@ -90,14 +76,15 @@ def get_access_token(
 		'client_id': client_id,
 		'redirect_uri': redirect_uri,
 		'response_type': 'code',
-		'scope': OAuth2Scope.encode_scopes(scopes),
+		'scope': '+'.join(map(lambda s: s.value, scopes)),
 		'state': 'randomval'
 	}
 
 	# Open the user's browser to osu!'s authorization page
 	open_browser(f'https://osu.ppy.sh/oauth/authorize/?{urlencode(query_params)}')
 
-	port: int | None = urlparse(redirect_uri).port
+	url_obj = urlparse(redirect_uri)
+	port: int | None = url_obj.port
 
 	if port is None:
 		port = 8080
@@ -136,7 +123,7 @@ def refresh_access_token(
 		'client_secret': client_secret,
 		'grant_type': 'refresh_token',
 		'refresh_token': refresh_token,
-		'scopes': OAuth2Scope.encode_scopes(scopes)
+		'scopes': '+'.join(map(lambda s: s.value, scopes))
 	}
 
 	resp = post('https://osu.ppy.sh/oauth/token', data=body_params, headers=POST_HEADERS)

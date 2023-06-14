@@ -102,6 +102,9 @@ def get_beatmap_attributes(
 		'Authorization': f'Bearer {access_token}'
 	}
 
+	json_encoder = JSONEncoder()
+
 	body = {
-		'mods': mods
+		'mods': mods,
+		
 	}
