@@ -3,6 +3,8 @@ from json import JSONDecoder
 
 client_info = JSONDecoder().decode(open('client_info.json', 'r').read())
 
-access_token_obj = get_access_token(**client_info, scopes=[OAuth2Scope.PUBLIC])
+scopes=[OAuth2Scope.PUBLIC, OAuth2Scope.IDENTIFY]
 
-open('token', 'w').write(access_token_obj.access_token)
+access_token_obj = get_access_token(**client_info, scopes=scopes)
+
+open('token.txt', 'w').write(access_token_obj.access_token)

@@ -74,7 +74,7 @@ def get_access_token(
 		'client_id': client_id,
 		'redirect_uri': redirect_uri,
 		'response_type': 'code',
-		'scope': '+'.join(map(lambda s: s.value, scopes)),
+		'scope': ' '.join(map(lambda s: s.value, scopes)),
 		'state': 'randomval'
 	}
 
@@ -121,7 +121,7 @@ def refresh_access_token(
 		'client_secret': client_secret,
 		'grant_type': 'refresh_token',
 		'refresh_token': refresh_token,
-		'scopes': '+'.join(map(lambda s: s.value, scopes))
+		'scopes': ' '.join(map(lambda s: s.value, scopes))
 	}
 
 	resp = post('https://osu.ppy.sh/oauth/token', data=body_params, headers=POST_HEADERS)
@@ -137,7 +137,7 @@ def get_client_credentials_token(client_id: str, client_secret: str) -> OsuClien
 		'client_id': client_id,
 		'client_secret': client_secret,
 		'grant_type': 'client_credentials',
-		'scope': 'public'
+		'scope': 'public identify'
 	}
 
 	resp = post('https://osu.ppy.sh/oauth/token', data=body_params, headers=POST_HEADERS)

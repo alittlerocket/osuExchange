@@ -1,9 +1,9 @@
-from api import get
+import api
 from exception import OsuApiException
 from structures import Beatmap, BeatmapAttributes
 
 def get_beatmap(access_token: str, id: int) -> Beatmap:
-	resp = get(access_token, f'/beatmaps/{id}')
+	resp = api.get(access_token, f'/beatmaps/{id}')
 
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
@@ -15,9 +15,9 @@ def get_beatmap_attributes(
 	id: int,
 
 	# Optional parameters
-	mods: tuple[str],
-	ruleset: str,
-	ruleset_id: int
+	mods: tuple[str] | None = None,
+	ruleset: str | None = None,
+	ruleset_id: int | None = None
 ) -> BeatmapAttributes:
 	body = {}
 
@@ -28,7 +28,7 @@ def get_beatmap_attributes(
 	if ruleset_id is not None:
 		body['ruleset_id'] = ruleset_id
 	
-	resp = get(access_token, f'/beatmaps/{id}/attributes', body_json=body)
+	resp = api.post(access_token, f'/beatmaps/{id}/attributes', body_json=body)
 
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)

@@ -39,11 +39,11 @@ class Beatmap(BeatmapCompact):
 		self.count_sliders: int = json['count_sliders']
 		self.count_spinners: int = json['count_spinners']
 		self.circle_size: float = json['cs']
-		self.deleted_at: datetime = datetime.fromisoformat(json['deleted_at'])
+		self.deleted_at: datetime = json['deleted_at']
 		self.hp_drain: float = json['drain']
 		self.hit_length: int = json['hit_length']
 		self.is_scoreable: bool = json['is_scoreable']
-		self.last_updated: datetime = datetime.fromisoformat(json['last_updated'])
+		self.last_updated: datetime = json['last_updated']
 		self.mode_int: int = json['mode_int']
 		self.pass_count: int = json['passcount']
 		self.play_count: int = json['playcount']

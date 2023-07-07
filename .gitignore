@@ -1,4 +1,5 @@
 auth/secret
 __pycache__
 *.json
+token.txt
 token
