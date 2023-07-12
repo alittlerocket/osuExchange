@@ -3,3 +3,10 @@ __pycache__
 *.json
 token.txt
 token
+build
+dist
+pyvenv.cfg
+Include
+Lib
+Scripts
+osuExchange.egg-info

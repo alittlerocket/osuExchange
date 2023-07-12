@@ -1,6 +1,6 @@
-import api
-from exception import OsuApiException
-from structures import Beatmap, BeatmapAttributes
+from osuExchange import api
+from osuExchange.exception import OsuApiException
+from osuExchange.structures import Beatmap, BeatmapAttributes
 
 def get_beatmap(access_token: str, id: int) -> Beatmap:
 	resp = api.get(access_token, f'/beatmaps/{id}')

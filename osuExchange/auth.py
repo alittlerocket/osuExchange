@@ -2,7 +2,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from requests import post
 from urllib.parse import urlencode, urlparse, parse_qs
 from webbrowser import open as open_browser
-from exception import OsuApiException
+from osuExchange.exception import OsuApiException
 from enum import Enum
 
 class OAuth2Scope(Enum):
