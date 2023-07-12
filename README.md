@@ -8,7 +8,7 @@ An osu! API wrapper written in Python. Built to give developers a simple and eas
 pip install requests
 ```
 
-## Build Command
+## Building
 
 Create the virtual environment first:
 
