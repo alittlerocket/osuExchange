@@ -2,10 +2,10 @@
 
 An osu! API wrapper written in Python. Built to give developers a simple and easy-to-use interface to the osu! API.
 
-## Dependencies
+## Usage
 
 ```
-pip install requests
+pip install osuExchange
 ```
 
 ## Building

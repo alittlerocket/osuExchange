@@ -4,4 +4,4 @@ from . import beatmap
 from . import exception
 from . import structures
 
-__all__ = ["api","auth","beatmap","exception","structures"]
+__all__ = ["api", "auth", "beatmap", "exception", "structures"]
