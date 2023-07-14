@@ -21,6 +21,7 @@ def optional_object(json: JsonObject, key: str, cls: type[T]) -> T | None:
 
 def optional_datetime(json: JsonObject, key: str) -> datetime | None:
 	try:
-		return datetime.fromisoformat(json[key])
+		s = json[key]
+		return None if s is None else datetime.fromisoformat(json[key])
 	except KeyError:
 		return None
