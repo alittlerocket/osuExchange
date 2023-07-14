@@ -1,15 +1,20 @@
+from datetime import datetime
+from typing import Sequence, Literal
+
 from osuExchange import api
 from osuExchange.exception import OsuApiException
-from datetime import datetime
+from osuExchange.util import object_or_none 
 
-# https://osu.ppy.sh/docs/#beatmapcompact-failtimes
-class Failtimes:
-	def __init__(self, json: dict):
-		self.exit: list[int] | None = json.get('exit')
-		self.fail: list[int] | None = json.get('fail')
+GameMode = Literal['fruits', 'mania', 'osu', 'taiko']
 		
 # https://osu.ppy.sh/docs/#beatmapcompact
 class BeatmapCompact:
+	# https://osu.ppy.sh/docs/#beatmapcompact-failtimes
+	class Failtimes:
+		def __init__(self, json: dict):
+			self.exit: list[int] | None = json.get('exit')
+			self.fail: list[int] | None = json.get('fail')
+
 	def __init__(self, json: dict):
 		self.beatmapset_id: int = json['beatmapset_id']
 		self.difficulty_rating: float = json['difficulty_rating']
@@ -23,12 +28,10 @@ class BeatmapCompact:
 		# Optional attributes
 		self.beatmapset = json['beatmapset']
 		self.checksum: str | None = json['checksum']
-		failtimes = json['failtimes']
-		self.failtimes: Failtimes | None = None if failtimes is None else Failtimes(failtimes)
+		self.failtimes = object_or_none(json['failtimes'], BeatmapCompact.Failtimes)
 		self.max_combo: int | None = json['max_combo']
 
 # https://osu.ppy.sh/docs/#beatmap
-# As documented, Beatmap is an extension of BeatmapCompact
 class Beatmap(BeatmapCompact):
 	def __init__(self, json: dict):
 		super().__init__(json)
@@ -52,7 +55,7 @@ class Beatmap(BeatmapCompact):
 		self.ranked: int = json['ranked']
 
 # https://osu.ppy.sh/docs/#beatmapdifficultyattributes
-class BeatmapAttributes:
+class BeatmapDifficultyAttributes:
 	def __init__(self, json: dict):
 		self.max_combo: int = json['max_combo']
 		self.star_rating: float = json['star_rating']
@@ -76,22 +79,18 @@ class BeatmapAttributes:
 		self.colour_difficulty: float | None = json['colour_difficulty']
 
 def get_beatmap(access_token: str, id: int) -> Beatmap:
-	resp = api.get(access_token, f'/beatmaps/{id}')
+	return Beatmap(api.get(access_token, f'/beatmaps/{id}'))
 
-	if resp.status_code >= 400:
-		raise OsuApiException(resp)
-	
-	return Beatmap(resp.json())
+def get_beatmaps(access_token: str, ids: list[int]) -> list[Beatmap]:
+	return [Beatmap(o) for o in api.get(access_token, f'/beatmaps', { 'ids[]': ids })]
 
 def get_beatmap_attributes(
 	access_token: str,
 	id: int,
-
-	# Optional parameters
-	mods: tuple[str] | None = None,
-	ruleset: str | None = None,
+	mods: Sequence[str] | None = None,
+	ruleset: GameMode | None = None,
 	ruleset_id: int | None = None
-) -> BeatmapAttributes:
+) -> BeatmapDifficultyAttributes:
 	body = {}
 
 	if mods is not None:
@@ -106,4 +105,4 @@ def get_beatmap_attributes(
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
 	
-	return BeatmapAttributes(resp.json())
+	return BeatmapDifficultyAttributes(resp.json())

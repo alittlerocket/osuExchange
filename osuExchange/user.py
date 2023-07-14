@@ -1,8 +1,9 @@
-from api import get
-from exception import OsuApiException
 from datetime import datetime
 from typing import Literal
-from osuExchange.util import list_of_objects_or_none, object_or_none
+
+from osuExchange.api import get
+from osuExchange.util import object_or_none
+from osuExchange.exception import OsuApiException
 
 # https://osu.ppy.sh/docs/#usercompact
 class UserCompact:
