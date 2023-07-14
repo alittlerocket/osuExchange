@@ -4,7 +4,7 @@ from urllib.parse import urlencode, urlparse, parse_qs
 from webbrowser import open as open_browser
 from enum import Enum
 
-from osuExchange.exception import OsuApiException
+from osuExchange.api import OsuApiException
 
 class OAuth2Scope(Enum):
 	CHAT_WRITE = 'chat.write'

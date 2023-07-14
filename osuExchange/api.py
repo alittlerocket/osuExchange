@@ -5,7 +5,21 @@ from requests import (
 )
 
 from typing import Any
-from osuExchange.exception import OsuApiException
+
+from osuExchange.types import JsonObject
+
+class OsuApiException(BaseException):
+	def __init__(self, resp: Response):
+		super().__init__(f'''
+request:
+	method: {resp.request.method}
+	path: {resp.request.path_url}
+	body: {resp.request.body}
+response:
+	code: {resp.status_code}
+	body: {resp.content}
+''')
+
 
 BASE_URL = 'https://osu.ppy.sh/api/v2'
 

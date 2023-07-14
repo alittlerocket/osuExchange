@@ -1,11 +1,9 @@
 from datetime import datetime
-from typing import Sequence, Literal
+from typing import Sequence, Any
 
 from osuExchange import api
-from osuExchange.exception import OsuApiException
-from osuExchange.util import object_or_none 
-
-GameMode = Literal['fruits', 'mania', 'osu', 'taiko']
+from osuExchange.util import optional_datetime, optional_object, optional_object_list
+from osuExchange.types import GameMode
 		
 # https://osu.ppy.sh/docs/#beatmapcompact
 class BeatmapCompact:
@@ -26,10 +24,10 @@ class BeatmapCompact:
 		self.version: str = json['version']
 
 		# Optional attributes
-		self.beatmapset = json['beatmapset']
-		self.checksum: str | None = json['checksum']
-		self.failtimes = object_or_none(json['failtimes'], BeatmapCompact.Failtimes)
-		self.max_combo: int | None = json['max_combo']
+		self.beatmapset = json.get('beatmapset')
+		self.checksum: str | None = json.get('checksum')
+		self.failtimes = BeatmapCompact.Failtimes(json['failtimes'])
+		self.max_combo: int | None = json.get('max_combo')
 
 # https://osu.ppy.sh/docs/#beatmap
 class Beatmap(BeatmapCompact):
@@ -37,14 +35,13 @@ class Beatmap(BeatmapCompact):
 		super().__init__(json)
 		self.accuracy: float = json['accuracy']
 		self.approach_rate: float = json['ar']
-		# self.beatmapset_id is in BeatmapCompact
-		self.bpm: float | None = json['bpm']
+		self.bpm: float | None = json.get('bpm')
 		self.convert: bool = json['convert']
 		self.count_circles: int = json['count_circles']
 		self.count_sliders: int = json['count_sliders']
 		self.count_spinners: int = json['count_spinners']
 		self.circle_size: float = json['cs']
-		self.deleted_at: datetime = json['deleted_at']
+		self.deleted_at: datetime | None = optional_datetime(json, 'deleted_at')
 		self.hp_drain: float = json['drain']
 		self.hit_length: int = json['hit_length']
 		self.is_scoreable: bool = json['is_scoreable']
@@ -82,7 +79,7 @@ def get_beatmap(access_token: str, id: int) -> Beatmap:
 	return Beatmap(api.get(access_token, f'/beatmaps/{id}'))
 
 def get_beatmaps(access_token: str, ids: list[int]) -> list[Beatmap]:
-	return [Beatmap(o) for o in api.get(access_token, f'/beatmaps', { 'ids[]': ids })]
+	return [Beatmap(o) for o in api.get(access_token, '/beatmaps', { 'ids[]': ids })['beatmaps']]
 
 def get_beatmap_attributes(
 	access_token: str,
@@ -91,18 +88,15 @@ def get_beatmap_attributes(
 	ruleset: GameMode | None = None,
 	ruleset_id: int | None = None
 ) -> BeatmapDifficultyAttributes:
-	body = {}
+	body: dict[str, Any] = {}
 
 	if mods is not None:
 		body['mods'] = mods
+	
 	if ruleset is not None:
 		body['ruleset'] = ruleset
+	
 	if ruleset_id is not None:
 		body['ruleset_id'] = ruleset_id
 	
-	resp = api.post(access_token, f'/beatmaps/{id}/attributes', body_json=body)
-
-	if resp.status_code >= 400:
-		raise OsuApiException(resp)
-	
-	return BeatmapDifficultyAttributes(resp.json())
+	return BeatmapDifficultyAttributes(api.post(access_token, f'/beatmaps/{id}/attributes', body_json=body))
