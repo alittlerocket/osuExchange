@@ -18,7 +18,6 @@ response:
 	body: {resp.content}
 ''')
 
-
 BASE_URL = 'https://osu.ppy.sh/api/v2'
 
 HEADERS_JSON = {
