@@ -15,4 +15,4 @@ class SeasonalBackgrounds:
 		self.backgrounds = [SeasonalBackgrounds.Background(o) for o in json['backgrounds']]
 
 def get_seasonal_backgrounds(access_token: str) -> SeasonalBackgrounds:
-	return SeasonalBackgrounds(api_get('/seasonal-backgrounds', access_token))
+	return SeasonalBackgrounds(api_get('/seasonal-backgrounds', access_token).json())

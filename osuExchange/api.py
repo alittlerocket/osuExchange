@@ -36,20 +36,20 @@ def get(
 	access_token: str | None = None,
 	query_params: JsonObject | None = None,
 	body_json: JsonObject | None = None
-):
+) -> Response:
 	headers = HEADERS_JSON.copy()
 	headers['Authorization'] = f'Bearer {access_token}'
 	resp = requests_get(BASE_URL + path, query_params, json=body_json, headers=headers)
 	open('seasonal_backgrounds.json', 'w').write(resp.text)
-	return error_check(resp).json()
+	return error_check(resp)
 
 def post(
 	path: str,
 	access_token: str | None = None,
 	query_params: JsonObject | None = None,
 	body_json: JsonObject | None = None
-):
+) -> Response:
 	headers = HEADERS_JSON.copy()
 	headers['Authorization'] = f'Bearer {access_token}'
 	resp = requests_post(BASE_URL + path, query_params, json=body_json, headers=headers)
-	return error_check(resp).json()
+	return error_check(resp)
