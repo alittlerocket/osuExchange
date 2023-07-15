@@ -39,7 +39,6 @@ def get(
 	headers = HEADERS_JSON.copy()
 	headers['Authorization'] = f'Bearer {access_token}'
 	resp = requests_get(BASE_URL + path, query_params, json=body_json, headers=headers)
-	open('seasonal_backgrounds.json', 'w').write(resp.text)
 	return error_check(resp)
 
 def post(

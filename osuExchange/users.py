@@ -162,11 +162,11 @@ def get_user(
 	if key is not None:
 		path += f'?key={key}'
 	
-	return User(api_get(access_token, path).json())
+	return User(api_get(path, access_token).json())
 
 # https://osu.ppy.sh/docs/#get-users
 def get_users(
 	access_token: str,
 	ids: list[int]
 ) -> list[UserCompact]:
-	return [UserCompact(o) for o in api_get(access_token, '/users', { 'ids[]': ids }).json()['users']]
+	return [UserCompact(o) for o in api_get('/users', access_token, query_params={ 'ids[]': ids }).json()['users']]
