@@ -4,9 +4,7 @@ from requests import (
 	Response
 )
 
-from typing import Any
-
-from osuExchange.types import JsonObject
+from osuExchange.typing import JsonObject
 
 class OsuApiException(BaseException):
 	def __init__(self, resp: Response):
@@ -34,21 +32,22 @@ def error_check(resp: Response) -> Response:
 	return resp
 
 def get(
-	access_token: str,
 	path: str,
-	query_params: dict[str, Any] | None = None,
-	body_json: dict[str, Any] | None = None
+	access_token: str | None = None,
+	query_params: JsonObject | None = None,
+	body_json: JsonObject | None = None
 ):
 	headers = HEADERS_JSON.copy()
 	headers['Authorization'] = f'Bearer {access_token}'
 	resp = requests_get(BASE_URL + path, query_params, json=body_json, headers=headers)
+	open('seasonal_backgrounds.json', 'w').write(resp.text)
 	return error_check(resp).json()
 
 def post(
-	access_token: str,
 	path: str,
-	query_params: dict[str, Any] | None = None,
-	body_json: dict[str, Any] | None = None
+	access_token: str | None = None,
+	query_params: JsonObject | None = None,
+	body_json: JsonObject | None = None
 ):
 	headers = HEADERS_JSON.copy()
 	headers['Authorization'] = f'Bearer {access_token}'

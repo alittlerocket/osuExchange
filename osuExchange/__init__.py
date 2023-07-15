@@ -1,6 +1,7 @@
 from . import api
 from . import auth
-from . import beatmap
-from . import user
+from . import beatmaps
+from . import users
+from . import undocumented
 
-__all__ = ["api", "auth", "beatmap", "user"]
+__all__ = ['api', 'auth', 'beatmaps', 'users', 'undocumented']

@@ -5,6 +5,7 @@ from webbrowser import open as open_browser
 from enum import Enum
 
 from osuExchange.api import OsuApiException
+from osuExchange.typing import JsonObject
 
 class OAuth2Scope(Enum):
 	CHAT_WRITE = 'chat.write'
@@ -14,14 +15,14 @@ class OAuth2Scope(Enum):
 	IDENTIFY = 'identify'
 	PUBLIC = 'public'
 
-class OsuClientCredentialsToken:
-	def __init__(self, json: dict):
+class ClientCredentialsToken:
+	def __init__(self, json: JsonObject):
 		self.access_token: str = json['access_token']
 		self.expires_in_sec: int = json['expires_in']
 		self.token_type: str = json['token_type']
 
-class OsuAccessToken(OsuClientCredentialsToken):
-	def __init__(self, json: dict):
+class UserAccessToken(ClientCredentialsToken):
+	def __init__(self, json: JsonObject):
 		super().__init__(json)
 		self.refresh_token: str = json['refresh_token']
 
@@ -32,13 +33,13 @@ POST_HEADERS = {
 
 # https://osu.ppy.sh/docs/index.html#authorization-code-grant
 def get_access_token(
-		client_id: str,
-		client_secret: str,
-		redirect_uri: str,
-		scopes: list[OAuth2Scope],
-		fail_message: str = 'User did not authorize the osu! client',
-		success_message: str = 'User has authorized the osu! client'
-	) -> OsuAccessToken:
+	client_id: str,
+	client_secret: str,
+	redirect_uri: str,
+	scopes: list[OAuth2Scope],
+	fail_message: str = 'User did not authorize the osu! client',
+	success_message: str = 'User has authorized the osu! client'
+) -> UserAccessToken:
 
 	authorization_code: str | None = None
 
@@ -108,14 +109,14 @@ def get_access_token(
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
 	
-	return OsuAccessToken(resp.json())
+	return UserAccessToken(resp.json())
 
 def refresh_access_token(
-		client_id: str,
-		client_secret: str,
-		refresh_token: str,
-		scopes: list[OAuth2Scope]
-	) -> OsuAccessToken:
+	client_id: str,
+	client_secret: str,
+	refresh_token: str,
+	scopes: list[OAuth2Scope]
+) -> UserAccessToken:
 
 	body_params = {
 		'client_id': client_id,
@@ -130,10 +131,13 @@ def refresh_access_token(
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
 	
-	return OsuAccessToken(resp.json())
+	return UserAccessToken(resp.json())
 
 # https://osu.ppy.sh/docs/#client-credentials-grant
-def get_client_credentials_token(client_id: str, client_secret: str) -> OsuClientCredentialsToken:
+def get_client_credentials_token(
+	client_id: str,
+	client_secret: str
+) -> ClientCredentialsToken:
 	body_params = {
 		'client_id': client_id,
 		'client_secret': client_secret,
@@ -146,4 +150,4 @@ def get_client_credentials_token(client_id: str, client_secret: str) -> OsuClien
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
 
-	return OsuClientCredentialsToken(resp.json())
+	return ClientCredentialsToken(resp.json())

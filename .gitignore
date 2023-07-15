@@ -10,3 +10,4 @@ Include
 Lib
 Scripts
 *.egg-info
+test.py

@@ -1,7 +1,7 @@
 from typing import TypeVar
 from datetime import datetime
 
-from osuExchange.types import JsonObject
+from osuExchange.typing import JsonObject
 
 T = TypeVar('T')
 

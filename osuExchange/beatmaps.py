@@ -1,19 +1,19 @@
 from datetime import datetime
-from typing import Sequence, Any
+from typing import Sequence
 
 from osuExchange import api
-from osuExchange.util import optional_datetime, optional_object, optional_object_list
-from osuExchange.types import GameMode
+from osuExchange.util import optional_datetime
+from osuExchange.typing import GameMode, JsonObject
 		
 # https://osu.ppy.sh/docs/#beatmapcompact
 class BeatmapCompact:
 	# https://osu.ppy.sh/docs/#beatmapcompact-failtimes
 	class Failtimes:
-		def __init__(self, json: dict):
+		def __init__(self, json: JsonObject):
 			self.exit: list[int] | None = json.get('exit')
 			self.fail: list[int] | None = json.get('fail')
 
-	def __init__(self, json: dict):
+	def __init__(self, json: JsonObject):
 		self.beatmapset_id: int = json['beatmapset_id']
 		self.difficulty_rating: float = json['difficulty_rating']
 		self.id: int = json['id']
@@ -31,7 +31,7 @@ class BeatmapCompact:
 
 # https://osu.ppy.sh/docs/#beatmap
 class Beatmap(BeatmapCompact):
-	def __init__(self, json: dict):
+	def __init__(self, json: JsonObject):
 		super().__init__(json)
 		self.accuracy: float = json['accuracy']
 		self.approach_rate: float = json['ar']
@@ -53,7 +53,7 @@ class Beatmap(BeatmapCompact):
 
 # https://osu.ppy.sh/docs/#beatmapdifficultyattributes
 class BeatmapDifficultyAttributes:
-	def __init__(self, json: dict):
+	def __init__(self, json: JsonObject):
 		self.max_combo: int = json['max_combo']
 		self.star_rating: float = json['star_rating']
 
@@ -76,10 +76,10 @@ class BeatmapDifficultyAttributes:
 		self.colour_difficulty: float | None = json['colour_difficulty']
 
 def get_beatmap(access_token: str, id: int) -> Beatmap:
-	return Beatmap(api.get(access_token, f'/beatmaps/{id}'))
+	return Beatmap(api.get(f'/beatmaps/{id}', access_token))
 
 def get_beatmaps(access_token: str, ids: list[int]) -> list[Beatmap]:
-	return [Beatmap(o) for o in api.get(access_token, '/beatmaps', { 'ids[]': ids })['beatmaps']]
+	return [Beatmap(o) for o in api.get('/beatmaps', access_token, query_params={ 'ids[]': ids })['beatmaps']]
 
 def get_beatmap_attributes(
 	access_token: str,
@@ -88,7 +88,7 @@ def get_beatmap_attributes(
 	ruleset: GameMode | None = None,
 	ruleset_id: int | None = None
 ) -> BeatmapDifficultyAttributes:
-	body: dict[str, Any] = {}
+	body: JsonObject = {}
 
 	if mods is not None:
 		body['mods'] = mods
@@ -98,5 +98,11 @@ def get_beatmap_attributes(
 	
 	if ruleset_id is not None:
 		body['ruleset_id'] = ruleset_id
-	
-	return BeatmapDifficultyAttributes(api.post(access_token, f'/beatmaps/{id}/attributes', body_json=body))
+
+	kwargs = {
+		'path': f'/beatmaps/{id}/attributes',
+		'access_token': access_token,
+		'body_json': body
+	}
+
+	return BeatmapDifficultyAttributes(api.post(f'/beatmaps/{id}/attributes', access_token, body_json=body))

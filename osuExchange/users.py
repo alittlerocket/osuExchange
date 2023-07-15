@@ -3,7 +3,7 @@ from typing import Literal
 
 from osuExchange.api import get as api_get
 from osuExchange.util import optional_object_list, optional_object, optional_datetime
-from osuExchange.types import GameMode, JsonObject, ProfilePage
+from osuExchange.typing import GameMode, JsonObject, ProfilePage
 
 # https://osu.ppy.sh/docs/#usercompact
 class UserCompact:
@@ -150,11 +150,11 @@ class User(UserCompact):
 # https://osu.ppy.sh/docs/#get-user
 def get_user(
 	access_token: str,
-	user: int,
+	id: int,
 	mode: GameMode | None = None,
 	key: Literal['id', 'username'] | None = None
 ) -> User:
-	path = f'/users/{user}'
+	path = f'/users/{id}'
 
 	if mode is not None:
 		path += f'/{mode}'
