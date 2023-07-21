@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Literal
 
 from osuExchange.api import get as api_get
-from osuExchange.util import optional_object_list, optional_object, optional_datetime
+from osuExchange.util import optional_object, optional_datetime
 from osuExchange.typing import GameMode, JsonObject
 from osuExchange.beatmaps import Beatmap, BeatmapsetCompact
 from osuExchange.users import UserCompact
@@ -38,7 +37,7 @@ class Score:
         self.pp: float | None = json.get('pp')
         self.rank: str = json['rank']
         self.created_at: datetime | None = optional_datetime(json, 'created_at')
-        self.mode: str = json['mode']
+        self.mode: GameMode = json['mode']
         self.mode_int: int = json['mode_int']
         self.replay: bool = json['replay']
         self.passed: bool = json['passed']
