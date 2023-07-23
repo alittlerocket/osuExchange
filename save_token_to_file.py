@@ -5,6 +5,7 @@ from json import JSONDecoder
 client_info_str = open('client_info.json', 'r').read()
 
 # Parse the JSON to construct a dict of the properties of the osu! client
+# client_id: str, client_secret: str,  redirect_uri: str are the only attributes you need.
 client_info: dict[str, str] = JSONDecoder().decode(client_info_str)
 
 # Define the necessary OAuth2 scopes
