@@ -10,6 +10,20 @@ pip install osuExchange
 
 ## Building
 
+Install necessary packages:
+
+```
+pip install build
+```
+
+Run this command inside of the osuExchange environment:
+
+```
+python -m build
+```
+
+Inside testing environment
+
 Create the virtual environment first:
 
 ```
@@ -20,6 +34,7 @@ Enter the virtual environment:
 
 - On Windows: `Scripts\activate`
 - On Linux: `sh Scripts/activate`
+
 
 Finally build the package:
 
