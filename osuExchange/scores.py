@@ -79,6 +79,13 @@ class Replay:
 def get_beatmap_scores(access_token: str, id: int) -> BeatmapScores:
 	return BeatmapScores(api_get(f'/beatmaps/{id}/scores', access_token).json())
 
+
+def get_user_beatmap_scores(access_token:str, beatmap_id: int, user_id: int) -> list[Score]:
+    return [Score(o) for o in api_get(f'/beatmaps/{beatmap_id}/scores/users/{user_id}/all', access_token).json()['scores']]
+
+
+
+
 def get_score(access_token: str, mode: GameMode | str, id: int) -> Score:
     #couldn't figure out path
     return Score(api_get(access_token, mode).json())
