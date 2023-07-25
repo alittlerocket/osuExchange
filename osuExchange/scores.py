@@ -1,10 +1,12 @@
 from datetime import datetime
+from typing import Literal
 
 from osuExchange.api import get as api_get
 from osuExchange.util import optional_object, optional_datetime
 from osuExchange.typing import GameMode, JsonObject
 from osuExchange.beatmaps import Beatmap, BeatmapsetCompact
-from osuExchange.users import UserCompact
+from osuExchange.users import UserCompact, User
+
 
 # https://osu.ppy.sh/docs/index.html#score
 class Score:
@@ -67,6 +69,20 @@ class BeatmapScores:
         #Note: will be moved to user_score in the future
         self.userScore: BeatmapUserScore | None = json.get('userScore')
 
+#Not sure if this is needed
+#https://circleguard.github.io/ossapi/appendix.html#ossapi.replay.Replay
+class Replay:
+    def __init__(self, json: JsonObject):
+        self.beatmap: Beatmap
+        self.user: User
 
 def get_beatmap_scores(access_token: str, id: int) -> BeatmapScores:
 	return BeatmapScores(api_get(f'/beatmaps/{id}/scores', access_token).json())
+
+def get_score(access_token: str, mode: GameMode | str, id: int) -> Score:
+    #couldn't figure out path
+    return Score(api_get(access_token, mode).json())
+
+def download_score(access_token: str, mode: GameMode | str, id: int, raw: Literal[False]) -> Replay:
+    #couldn't figure out path
+    return Replay(api_get(access_token, mode).json())
