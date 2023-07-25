@@ -50,3 +50,23 @@ class Score:
         # self.weight: Weight | None = optional_object(json, 'weight', Weight)
         self.user: UserCompact | None = optional_object(json, 'user', UserCompact)
         self.type: str | None = json.get('type')
+
+
+#https://osu.ppy.sh/docs/index.html#beatmapuserscore
+class BeatmapUserScore:
+    def __init__(self, json: JsonObject):
+        self.position: int = json['position']
+        self.score: Score = json['score']
+
+
+#https://osu.ppy.sh/docs/index.html#beatmapscores
+class BeatmapScores:
+    def __init__(self, json: JsonObject):
+        self.scores: list[Score] = [Score(o) for o in json['scores']]
+
+        #Note: will be moved to user_score in the future
+        self.userScore: BeatmapUserScore | None = json.get('userScore')
+
+
+def get_beatmap_scores(access_token: str, id: int) -> BeatmapScores:
+	return BeatmapScores(api_get(f'/beatmaps/{id}/scores', access_token).json())
