@@ -84,12 +84,10 @@ def get_user_beatmap_scores(access_token:str, beatmap_id: int, user_id: int) -> 
     return [Score(o) for o in api_get(f'/beatmaps/{beatmap_id}/scores/users/{user_id}/all', access_token).json()['scores']]
 
 
-
-
 def get_score(access_token: str, mode: GameMode | str, id: int) -> Score:
     #couldn't figure out path
-    return Score(api_get(access_token, mode).json())
+    return Score(api_get(f'/scores/{mode}/{id}', access_token).json())
 
 def download_score(access_token: str, mode: GameMode | str, id: int, raw: Literal[False]) -> Replay:
     #couldn't figure out path
-    return Replay(api_get(access_token, mode).json())
+    return Replay(api_get(f'/scores/{mode}/{id}/download', access_token).json())
