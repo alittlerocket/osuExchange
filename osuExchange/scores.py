@@ -69,12 +69,6 @@ class BeatmapScores:
         #Note: will be moved to user_score in the future
         self.userScore: BeatmapUserScore | None = json.get('userScore')
 
-#Not sure if this is needed
-#https://circleguard.github.io/ossapi/appendix.html#ossapi.replay.Replay
-class Replay:
-    def __init__(self, json: JsonObject):
-        self.beatmap: Beatmap
-        self.user: User
 
 def get_beatmap_scores(access_token: str, id: int) -> BeatmapScores:
 	return BeatmapScores(api_get(f'/beatmaps/{id}/scores', access_token).json())
@@ -87,7 +81,3 @@ def get_user_beatmap_scores(access_token:str, beatmap_id: int, user_id: int) -> 
 def get_score(access_token: str, mode: GameMode | str, id: int) -> Score:
     #couldn't figure out path
     return Score(api_get(f'/scores/{mode}/{id}', access_token).json())
-
-def download_score(access_token: str, mode: GameMode | str, id: int, raw: Literal[False]) -> Replay:
-    #couldn't figure out path
-    return Replay(api_get(f'/scores/{mode}/{id}/download', access_token).json())
