@@ -210,10 +210,4 @@ def get_beatmap_attributes(
 	if ruleset_id is not None:
 		body['ruleset_id'] = ruleset_id
 
-	kwargs = {
-		'path': f'/beatmaps/{id}/attributes',
-		'access_token': access_token,
-		'body_json': body
-	}
-
-	return BeatmapDifficultyAttributes(api.post(f'/beatmaps/{id}/attributes', access_token, body_json=body).json())
+	return BeatmapDifficultyAttributes(api.post(f'/beatmaps/{id}/attributes', access_token, body_json=body).json()['attributes'])
