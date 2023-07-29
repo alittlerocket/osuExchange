@@ -5,7 +5,7 @@ from osuExchange.api import get as api_get
 from osuExchange.util import optional_object, optional_datetime
 from osuExchange.typing import GameMode, JsonObject
 from osuExchange.beatmaps import Beatmap, BeatmapsetCompact
-from osuExchange.users import UserCompact, User
+from osuExchange.users import UserCompact
 
 
 # https://osu.ppy.sh/docs/index.html#score

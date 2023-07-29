@@ -164,27 +164,29 @@ class Beatmap(BeatmapCompact):
 
 # https://osu.ppy.sh/docs/#beatmapdifficultyattributes
 class BeatmapDifficultyAttributes:
-	def __init__(self, json: JsonObject):
+	def __init__(self, json_init: JsonObject):
+		json = json_init['attributes']
+		
 		self.max_combo: int = json['max_combo']
 		self.star_rating: float = json['star_rating']
 
 		# osu, taiko, fruits
-		self.approach_rate: float | None = json['approach_rate']
+		self.approach_rate: float | None = json.get('approach_rate')
 
 		# taiko, mania
-		self.great_hit_window: float | None = json['great_hit_window']
+		self.great_hit_window: float | None = json.get('great_hit_window')
 
 		# oau
-		self.aim_difficulty: float | None = json['aim_difficulty']
-		self.flashlight_difficulty: float | None = json['flashlight_difficulty']
-		self.overall_difficulty: float | None = json['overall_difficulty']
-		self.slider_factor: float | None = json['slider_factor']
-		self.speed_difficulty: float | None = json['speed_difficulty']
+		self.aim_difficulty: float | None = json.get('aim_difficulty')
+		self.flashlight_difficulty: float | None = json.get('flashlight_difficulty')
+		self.overall_difficulty: float | None = json.get('overall_difficulty')
+		self.slider_factor: float | None = json.get('slider_factor')
+		self.speed_difficulty: float | None = json.get('speed_difficulty')
 
 		# taiko
-		self.stamina_difficulty: float | None = json['stamina_difficulty']
-		self.rhythm_difficulty: float | None = json['rhythm_difficulty']
-		self.colour_difficulty: float | None = json['colour_difficulty']
+		self.stamina_difficulty: float | None = json.get('stamina_difficulty')
+		self.rhythm_difficulty: float | None = json.get('rhythm_difficulty')
+		self.colour_difficulty: float | None = json.get('colour_difficulty')
 
 def get_beatmap(access_token: str, id: int) -> Beatmap:
 	return Beatmap(api.get(f'/beatmaps/{id}', access_token).json())
