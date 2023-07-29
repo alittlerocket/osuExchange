@@ -164,9 +164,7 @@ class Beatmap(BeatmapCompact):
 
 # https://osu.ppy.sh/docs/#beatmapdifficultyattributes
 class BeatmapDifficultyAttributes:
-	def __init__(self, json_init: JsonObject):
-		json = json_init['attributes']
-		
+	def __init__(self, json: JsonObject):		
 		self.max_combo: int = json['max_combo']
 		self.star_rating: float = json['star_rating']
 
