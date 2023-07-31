@@ -1,11 +1,10 @@
 [project]
 name = "osuExchange"
-version = "0.0.1"
+version = "0.0.2"
 readme = "README.md"
 description = "A simple osu!APIv2 wrapper for Python"
 authors = [{ name = "trustytrojan" }, { name = "alittlerocket" }]
 dependencies = ["requests"]
-required-python = ">=3.11"
 
 [project.urls]
 "Homepage" = "https://github.com/alittlerocket/osuExchange"
