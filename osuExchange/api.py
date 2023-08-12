@@ -1,13 +1,8 @@
-from requests import (
-	get as requests_get,
-	post as requests_post,
-	Response
-)
-
-from osuExchange.typing import JsonObject
+from osuExchange.typing import JsonObject, Optional
+import requests
 
 class OsuApiException(BaseException):
-	def __init__(self, resp: Response):
+	def __init__(self, resp: requests.Response):
 		super().__init__(f'''
 request:
 	method: {resp.request.method}
@@ -20,34 +15,35 @@ response:
 
 BASE_URL = 'https://osu.ppy.sh/api/v2'
 
-HEADERS_JSON = {
+DEFAULT_HEADERS = {
 	'Accept': 'application/json',
 	'Content-Type': 'application/json'
 }
 
-def error_check(resp: Response) -> Response:
+def error_check(resp: requests.Response) -> requests.Response:
 	if resp.status_code >= 400:
 		raise OsuApiException(resp)
 	return resp
 
+def make_headers(token: Optional[str]) -> dict[str, str]:
+	if token:
+		headers = DEFAULT_HEADERS.copy()
+		headers['Authorization'] = f'Bearer {token}'
+		return headers
+	return DEFAULT_HEADERS
+
 def get(
-	path: str,
-	access_token: str | None = None,
-	query_params: JsonObject | None = None,
-	body_json: JsonObject | None = None
-) -> Response:
-	headers = HEADERS_JSON.copy()
-	headers['Authorization'] = f'Bearer {access_token}'
-	resp = requests_get(BASE_URL + path, query_params, json=body_json, headers=headers)
-	return error_check(resp)
+	path: str, *,
+	token: Optional[str] = None,
+	params: Optional[JsonObject] = None,
+	json: Optional[JsonObject] = None
+) -> requests.Response:
+	return error_check(requests.get(BASE_URL + path, params, json=json, headers=make_headers(token)))
 
 def post(
-	path: str,
-	access_token: str | None = None,
-	query_params: JsonObject | None = None,
-	body_json: JsonObject | None = None
-) -> Response:
-	headers = HEADERS_JSON.copy()
-	headers['Authorization'] = f'Bearer {access_token}'
-	resp = requests_post(BASE_URL + path, query_params, json=body_json, headers=headers)
-	return error_check(resp)
+	path: str, *,
+	token: Optional[str] = None,
+	params: Optional[JsonObject] = None,
+	json: Optional[JsonObject] = None
+) -> requests.Response:
+	return error_check(requests.post(BASE_URL + path, params, json=json, headers=make_headers(token)))
