@@ -1,5 +1,6 @@
 from typing import Optional
 from osuExchange.api import get as api_get
+from osuExchange.util import optional_object_list, optional_object
 from osuExchange.typing import JsonObject
 
 class Build:
@@ -24,7 +25,7 @@ class Build:
             url: Optional[str] = json.get('url')
 
             # Optional Attributes
-            github_user: Optional[Build.GithubUser] = json.get('github_user')
+            github_user: Optional[Build.GithubUser] = optional_object(json, 'github_user', Build.GithubUser)
             message: Optional[str] = json.get('message')
             message_html: Optional[str] = json.get('message_html')
 
@@ -40,22 +41,22 @@ class Build:
     
     class Versions:
         def __init__(self, json: JsonObject):
-            next: Optional[Build] = json.get('next')
-            previous: Optional[Build] = json.get('previous')
+            next: Optional[Build] = optional_object(json, 'github_user', Build)
+            previous: Optional[Build] = optional_object(json, 'github_user', Build)
         
 
     def __init__(self, json: JsonObject):
         created_at: str = json['created_at']
         display_version: str = json['display_version']
         id: int = json['id']
-        update_stream: Optional[Build.UpdateStream] = json.get('update_stream')
+        update_stream: Optional[Build.UpdateStream] = optional_object(json, 'update_stream', Build.UpdateStream)
         users: int = json['users']
         version: Optional[str] = json.get('version')
         youtube_id: Optional[str] = json.get('youtube_id')
 
         # Optional
-        changelog_entries: Optional[list[Build.ChangelogEntry]] = json.get('changelog_entries')
-        versions: Optional[Build.Versions] = json.get('versions')
+        changelog_entries: Optional[list[Build.ChangelogEntry]] = optional_object_list(json, 'changelog_entries', Build.ChangelogEntry)
+        versions: Optional[Build.Versions] = optional_object(json, 'versions', Build.Versions)
 
 def get_beatmap_scores(access_token: str, 
         stream: str, 
