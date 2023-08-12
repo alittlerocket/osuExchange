@@ -1,6 +1,6 @@
 [project]
 name = "osuExchange"
-version = "0.0.6"
+version = "0.0.7"
 readme = "README.md"
 description = "A simple osu!APIv2 wrapper for Python"
 authors = [{ name = "trustytrojan" }, { name = "alittlerocket" }]
