@@ -33,7 +33,7 @@ POST_HEADERS = {
 
 # https://osu.ppy.sh/docs/index.html#authorization-code-grant
 def get_access_token(
-	client_id: str,
+	client_id: int,
 	client_secret: str,
 	redirect_uri: str,
 	scopes: list[OAuth2Scope],
@@ -45,7 +45,7 @@ def get_access_token(
 
 	class CodeHandler(BaseHTTPRequestHandler):
 		# Override log_message to suppress printing to stdout
-		def log_message(self, format, *args):
+		def log_message(self):
 			pass
 
 		# Handle Chrome's /favicon.ico request (?)
@@ -110,7 +110,7 @@ def get_access_token(
 
 	return UserAccessToken(resp.json())
 
-def refresh_access_token(client_id: str, client_secret: str, refresh_token: str, scopes: list[OAuth2Scope]) -> UserAccessToken:
+def refresh_access_token(client_id: int, client_secret: str, refresh_token: str, scopes: list[OAuth2Scope]) -> UserAccessToken:
 	body_params = {
 		'client_id': client_id,
 		'client_secret': client_secret,
@@ -124,7 +124,7 @@ def refresh_access_token(client_id: str, client_secret: str, refresh_token: str,
 	return UserAccessToken(resp.json())
 
 # https://osu.ppy.sh/docs/#client-credentials-grant
-def get_client_credentials_token(client_id: str, client_secret: str) -> ClientCredentialsToken:
+def get_client_credentials_token(client_id: int, client_secret: str) -> ClientCredentialsToken:
 	body_params = {
 		'client_id': client_id,
 		'client_secret': client_secret,

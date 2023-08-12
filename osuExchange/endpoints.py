@@ -11,12 +11,8 @@ class UsersEndpoints:
 		self.token = token
 		
 	# https://osu.ppy.sh/docs/#get-user
-	def get(self,
-	    user_id: int, *,
-		mode: Optional[GameMode] = None,
-		key: Optional[Literal['id', 'username']] = None
-	) -> User:
-		return User(api.get(f'/users/{user_id}{f"/{mode}" if mode else ""}{f"?key={key}" if key else ""}', token=self.token).json())
+	def get(self, id_or_username: int | str, *, mode: Optional[GameMode] = None) -> User:
+		return User(api.get(f'/users/{id_or_username}{f"/{mode}" if mode else ""}', token=self.token).json())
 
 	# https://osu.ppy.sh/docs/#get-users
 	def get_many(self, user_ids: list[int]) -> list[UserCompact]:
