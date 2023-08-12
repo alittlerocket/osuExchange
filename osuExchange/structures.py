@@ -1,10 +1,11 @@
+from osuExchange.enums import RankStatus
 from osuExchange.typing import (
 	JsonObject, GameMode, ProfilePage,
 	optional_datetime, optional_object, optional_object_list,
 	Optional, Literal, datetime
 )
-from osuExchange.enums import RankStatus
 
+# https://osu.ppy.sh/docs/#nomination
 class Nomination:
 	def __init__(self, json: JsonObject):
 		self.beatmapset_id: int = json['beatmapset_id']
@@ -63,6 +64,7 @@ class BeatmapsetCompact:
 		self.user = json.get('user')
 		self.track_id = json.get('track_id')
 
+# https://osu.ppy.sh/docs/#beatmapset
 class Beatmapset(BeatmapsetCompact):
 	class Availability:
 		def __init__(self, json: JsonObject):
@@ -170,6 +172,7 @@ class BeatmapDifficultyAttributes:
 
 # https://osu.ppy.sh/docs/#usercompact
 class UserCompact:
+	# https://osu.ppy.sh/docs/#usercompact-profilebanner
 	class ProfileBanner:
 		def __init__(self, json: JsonObject):
 			self.id: int = json['id']
@@ -181,6 +184,7 @@ class UserCompact:
 			self.rank: int = json['rank']
 			self.updated_at: datetime = datetime.fromisoformat(json['updated_at'])
 
+	# https://osu.ppy.sh/docs/#usercompact-useraccounthistory
 	class AccountHistory:
 		def __init__(self, json: JsonObject):
 			self.description: str = json['description']
@@ -190,6 +194,7 @@ class UserCompact:
 			self.timestamp: datetime = datetime.fromisoformat(json['timestamp'])
 			self.type: Literal['note', 'restriction', 'silence'] = json['type']
 
+	# https://osu.ppy.sh/docs/#usercompact-userbadge
 	class Badge:
 		def __init__(self, json: JsonObject):
 			self.awarded_at: datetime = datetime.fromisoformat(json['awarded_at'])
@@ -197,11 +202,14 @@ class UserCompact:
 			self.image_url: str = json['image_url']
 			self.url: str = json['url']
 
+	# https://osu.ppy.sh/docs/#usermonthlyplaycount
+	# link goes to nothing...
 	class MonthlyPlaycount:
 		def __init__(self, json: JsonObject):
 			self.start_date: str = json['start_date']
 			self.count: int = json['count']
 
+	# undocumented, built by looking at raw User
 	class Page:
 		def __init__(self, json: JsonObject):
 			self.html: str = json['html']
@@ -344,17 +352,9 @@ class Event:
 
 		## shared between several events
 		self.mode: Optional[GameMode] = json.get('mode')
-
-		
-
-		beatmap = json.get('beatmap')
-		self.beatmap = EventBeatmap(beatmap) if beatmap else None
-
-		beatmapset = json.get('beatmapset')
-		self.beatmapset = EventBeatmapset(beatmapset) if beatmapset else None
-
-		user = json.get('user')
-		self.user = EventUser(user) if user else None
+		self.beatmap = optional_object(json, 'beatmap', EventBeatmap)
+		self.beatmapset = optional_object(json, 'beatmapset', EventBeatmapset)
+		self.user = optional_object(json, 'user', EventUser)
 
 		## achievement
 		achievement = json.get('achievement')
