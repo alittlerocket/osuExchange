@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Sequence
+from typing import Sequence, Optional
 from enum import Enum
 
 from osuExchange import api
@@ -67,11 +67,11 @@ class BeatmapsetCompact:
 		self.converts = json.get('converts')
 		self.current_nominations = optional_object_list(json, 'nominations', Nomination)
 		self.current_user_attributes = json.get('current_user_attributes')
-		self.description: str | None = json.get('description')
+		self.description: Optional[str] = json.get('description')
 		self.discussions = json.get('discussions')
 		self.events = json.get('events')
 		self.genre = json.get('genre')
-		self.has_favorited: bool | None = json.get('has_favourited')
+		self.has_favorited: Optional[bool] = json.get('has_favourited')
 		self.language = json.get('language')
 		self.nominations = json.get('nominations')
 		self.pack_tags = json.get('pack_tags')
@@ -85,7 +85,7 @@ class Beatmapset(BeatmapsetCompact):
 	class Availability:
 		def __init__(self, json: JsonObject):
 			self.download_disabled: bool = json['download_disabled']
-			self.more_information: str | None = json.get('more_information')
+			self.more_information: Optional[str] = json.get('more_information')
 
 	class Hype:
 		def __init__(self, json: JsonObject):
@@ -107,7 +107,7 @@ class Beatmapset(BeatmapsetCompact):
 		self.hype = optional_object(json, 'hype', Beatmapset.Hype)
 		self.is_scoreable: bool = json['is_scoreable']
 		self.last_updated = datetime.fromisoformat(json['last_updated'])
-		self.legacy_thread_url: str | None = json.get('legacy_thread_url')
+		self.legacy_thread_url: Optional[str] = json.get('legacy_thread_url')
 		self.nominations_summary = Beatmapset.NominationsSummary(json['nominations_summary'])
 		self.ranked: RankStatus = RankStatus.from_int(json['ranked'])
 		self.ranked_date = optional_datetime(json, 'ranked_date')
@@ -121,8 +121,8 @@ class BeatmapCompact:
 	# https://osu.ppy.sh/docs/#beatmapcompact-failtimes
 	class Failtimes:
 		def __init__(self, json: JsonObject):
-			self.exit: list[int] | None = json.get('exit')
-			self.fail: list[int] | None = json.get('fail')
+			self.exit: Optional[list[int]] = json.get('exit')
+			self.fail: Optional[list[int]] = json.get('fail')
 
 	def __init__(self, json: JsonObject):
 		self.beatmapset_id: int = json['beatmapset_id']
@@ -136,9 +136,9 @@ class BeatmapCompact:
 
 		# Optional attributes
 		self.beatmapset = optional_object(json, 'beatmapset', Beatmapset)
-		self.checksum: str | None = json.get('checksum')
+		self.checksum: Optional[str] = json.get('checksum')
 		self.failtimes = BeatmapCompact.Failtimes(json['failtimes'])
-		self.max_combo: int | None = json.get('max_combo')
+		self.max_combo: Optional[int] = json.get('max_combo')
 
 # https://osu.ppy.sh/docs/#beatmap
 class Beatmap(BeatmapCompact):
@@ -146,13 +146,13 @@ class Beatmap(BeatmapCompact):
 		super().__init__(json)
 		self.accuracy: float = json['accuracy']
 		self.approach_rate: float = json['ar']
-		self.bpm: float | None = json.get('bpm')
+		self.bpm: Optional[float] = json.get('bpm')
 		self.convert: bool = json['convert']
 		self.count_circles: int = json['count_circles']
 		self.count_sliders: int = json['count_sliders']
 		self.count_spinners: int = json['count_spinners']
 		self.circle_size: float = json['cs']
-		self.deleted_at: datetime | None = optional_datetime(json, 'deleted_at')
+		self.deleted_at: Optional[datetime] = optional_datetime(json, 'deleted_at')
 		self.hp_drain: float = json['drain']
 		self.hit_length: int = json['hit_length']
 		self.is_scoreable: bool = json['is_scoreable']
@@ -169,22 +169,22 @@ class BeatmapDifficultyAttributes:
 		self.star_rating: float = json['star_rating']
 
 		# osu, taiko, fruits
-		self.approach_rate: float | None = json.get('approach_rate')
+		self.approach_rate: Optional[float] = json.get('approach_rate')
 
 		# taiko, mania
-		self.great_hit_window: float | None = json.get('great_hit_window')
+		self.great_hit_window: Optional[float] = json.get('great_hit_window')
 
 		# oau
-		self.aim_difficulty: float | None = json.get('aim_difficulty')
-		self.flashlight_difficulty: float | None = json.get('flashlight_difficulty')
-		self.overall_difficulty: float | None = json.get('overall_difficulty')
-		self.slider_factor: float | None = json.get('slider_factor')
-		self.speed_difficulty: float | None = json.get('speed_difficulty')
+		self.aim_difficulty: Optional[float] = json.get('aim_difficulty')
+		self.flashlight_difficulty: Optional[float] = json.get('flashlight_difficulty')
+		self.overall_difficulty: Optional[float] = json.get('overall_difficulty')
+		self.slider_factor: Optional[float] = json.get('slider_factor')
+		self.speed_difficulty: Optional[float] = json.get('speed_difficulty')
 
 		# taiko
-		self.stamina_difficulty: float | None = json.get('stamina_difficulty')
-		self.rhythm_difficulty: float | None = json.get('rhythm_difficulty')
-		self.colour_difficulty: float | None = json.get('colour_difficulty')
+		self.stamina_difficulty: Optional[float] = json.get('stamina_difficulty')
+		self.rhythm_difficulty: Optional[float] = json.get('rhythm_difficulty')
+		self.colour_difficulty: Optional[float] = json.get('colour_difficulty')
 
 def get_beatmap(access_token: str, id: int) -> Beatmap:
 	return Beatmap(api.get(f'/beatmaps/{id}', access_token).json())

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Optional
 
 from osuExchange.api import get as api_get
 from osuExchange.util import optional_object, optional_datetime
@@ -27,8 +27,8 @@ class Score:
     
 
     def __init__(self, json: JsonObject):
-        self.id: int | None = json.get('id')
-        self.best_id: int | None = json.get('best_id')
+        self.id: Optional[int] = json.get('id')
+        self.best_id: Optional[int] = json.get('best_id')
         self.user_id: int = json['user_id']
         self.accuracy: float = json['accuracy']
         self.mods: list[str] = json['mods'] 
@@ -36,22 +36,22 @@ class Score:
         self.max_combo: int = json['max_combo']
         self.perfect: bool = json['perfect']
         self.statistics: Score.Statistics = json['statistics']
-        self.pp: float | None = json.get('pp')
+        self.pp: Optional[float] = json.get('pp')
         self.rank: str = json['rank']
-        self.created_at: datetime | None = optional_datetime(json, 'created_at')
+        self.created_at: Optional[datetime] = optional_datetime(json, 'created_at')
         self.mode: GameMode = json['mode']
         self.mode_int: int = json['mode_int']
         self.replay: bool = json['replay']
         self.passed: bool = json['passed']
         self.current_user_attributes = json.get('current_user_attributes')
 
-        self.beatmap: Beatmap | None =  optional_object(json, 'beatmap', Beatmap)
-        self.beatmapset: BeatmapsetCompact | None = optional_object(json, 'beatmapset', BeatmapsetCompact)
-        self.rank_country: int | None = json.get('rank_country')
-        self.rank_global: int | None = json.get('rnak_global')
+        self.beatmap: Optional[Beatmap] =  optional_object(json, 'beatmap', Beatmap)
+        self.beatmapset: Optional[BeatmapsetCompact] = optional_object(json, 'beatmapset', BeatmapsetCompact)
+        self.rank_country: Optional[int] = json.get('rank_country')
+        self.rank_global: Optional[int] = json.get('rnak_global')
         # self.weight: Weight | None = optional_object(json, 'weight', Weight)
-        self.user: UserCompact | None = optional_object(json, 'user', UserCompact)
-        self.type: str | None = json.get('type')
+        self.user: Optional[UserCompact] = optional_object(json, 'user', UserCompact)
+        self.type: Optional[str] = json.get('type')
 
 
 #https://osu.ppy.sh/docs/index.html#beatmapuserscore
@@ -67,7 +67,7 @@ class BeatmapScores:
         self.scores: list[Score] = [Score(o) for o in json['scores']]
 
         #Note: will be moved to user_score in the future
-        self.userScore: BeatmapUserScore | None = json.get('userScore')
+        self.userScore: Optional[BeatmapUserScore] = json.get('userScore')
 
 
 def get_beatmap_scores(access_token: str, id: int) -> BeatmapScores:
