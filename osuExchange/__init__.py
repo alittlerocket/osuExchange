@@ -1,4 +1,4 @@
 from osuExchange.client import OsuApiClient, OsuUserClient
-from . import seasonalbg
+from . import unauth_endpoints
 
-__all__ = ['OsuApiClient', 'OsuUserClient', 'seasonalbg']
+__all__ = ['OsuApiClient', 'OsuUserClient', 'unauth_endpoints']

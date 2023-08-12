@@ -471,3 +471,65 @@ class SeasonalBackgrounds:
 	def __init__(self, json: JsonObject):
 		self.ends_at = datetime.fromisoformat(json['ends_at'])
 		self.backgrounds = [SeasonalBackgrounds.Background(o) for o in json['backgrounds']]
+
+# https://osu.ppy.sh/docs/#updatestream
+class UpdateStream:
+	def __init__(self, json: JsonObject):
+		self.display_name: Optional[str] = json.get('display_name')
+		self.id: int = json['id']
+		self.is_featured: bool = json['is_featured']
+		self.name: str = json['name']
+
+		# Optional attributes
+		self.latest_build = optional_object(json, 'latest_build', Build)
+		self.user_count: int = json['user_count']
+
+# https://osu.ppy.sh/docs/#changelogentry
+class ChangelogEntry:
+	def __init__(self, json: JsonObject):
+		self.category: str = json['category']
+		self.created_at: Optional[str] = json.get('created_at')
+		self.github_pull_request_id: Optional[int] = json.get('github_pull_request_id')
+		self.github_url: Optional[str] = json.get('github_url')
+		self.id: Optional[int] = json.get('id')
+		self.major: bool = json['major']
+		self.repository: Optional[str] = json.get('repository')
+		self.title: Optional[str] = json.get('title')
+		self.type: str = json['type']
+		self.url: Optional[str] = json.get('url')
+
+		# Optional Attributes
+		self.github_user = optional_object(json, 'github_user', GithubUser)
+		self.message: Optional[str] = json.get('message')
+		self.message_html: Optional[str] = json.get('message_html')
+
+# https://osu.ppy.sh/docs/#githubuser
+class GithubUser:
+	def __init__(self, json: JsonObject):
+		self.display_name: str = json['display_name']
+		self.github_url: Optional[str] = json.get('github_url')
+		self.id: Optional[int] = json.get('id')
+		self.osu_username: Optional[str] = json.get('osu_username')
+		self.user_id: Optional[int] = json.get('user_id')
+		self.user_url: Optional[str] = json.get('user_url')
+
+# https://osu.ppy.sh/docs/#build
+class Build:
+	# https://osu.ppy.sh/docs/#build-versions
+	class Versions:
+		def __init__(self, json: JsonObject):
+			self.next = optional_object(json, 'github_user', Build)
+			self.previous = optional_object(json, 'github_user', Build)
+
+	def __init__(self, json: JsonObject):
+		self.created_at: str = json['created_at']
+		self.display_version: str = json['display_version']
+		self.id: int = json['id']
+		self.update_stream = optional_object(json, 'update_stream', UpdateStream)
+		self.users: int = json['users']
+		self.version: Optional[str] = json.get('version')
+		self.youtube_id: Optional[str] = json.get('youtube_id')
+
+		# Optional attributes
+		self.changelog_entries: Optional[list[ChangelogEntry]] = optional_object_list(json, 'changelog_entries', ChangelogEntry)
+		self.versions: Optional[Build.Versions] = optional_object(json, 'versions', Build.Versions)
