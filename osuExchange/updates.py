@@ -1,6 +1,6 @@
 from typing import Optional
 from osuExchange.api import get as api_get
-from osuExchange.typing import GameMode, JsonObject
+from osuExchange.typing import JsonObject
 
 class Build:
     class UpdateStream:
