@@ -1,3 +1,4 @@
+from json import dumps
 from osuExchange.enums import RankStatus
 from osuExchange.typing import (
 	JsonObject, GameMode, ProfilePage,
@@ -5,18 +6,27 @@ from osuExchange.typing import (
 	Optional, Literal, datetime
 )
 
-# https://osu.ppy.sh/docs/#nomination
-class Nomination:
+class JsonObjectWrapper:
 	def __init__(self, json: JsonObject):
+		self.json = json
+	
+	def __repr__(self):
+		return dumps(self.json, indent=4)
+
+# https://osu.ppy.sh/docs/#nomination
+class Nomination(JsonObjectWrapper):
+	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.beatmapset_id: int = json['beatmapset_id']
 		self.rulesets: list[GameMode] = json['rulesets']
 		self.reset: bool = json['reset']
 		self.user_id: int = json['user_id']
 
 # https://osu.ppy.sh/docs/#beatmapsetcompact
-class BeatmapsetCompact:
-	class Covers:
+class BeatmapsetCompact(JsonObjectWrapper):
+	class Covers(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.cover: str = json['cover']
 			self.cover2x: str = json['cover@2x']
 			self.card: str = json['card']
@@ -27,6 +37,7 @@ class BeatmapsetCompact:
 			self.slimcover2x: str = json['slimcover@2x']
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.artist: str = json['artist']
 		self.artist_unicode: str = json['artist_unicode']
 		self.covers = BeatmapsetCompact.Covers(json['covers'])
@@ -66,18 +77,21 @@ class BeatmapsetCompact:
 
 # https://osu.ppy.sh/docs/#beatmapset
 class Beatmapset(BeatmapsetCompact):
-	class Availability:
+	class Availability(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.download_disabled: bool = json['download_disabled']
 			self.more_information: Optional[str] = json.get('more_information')
 
-	class Hype:
+	class Hype(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.current: int = json['current']
 			self.required: int = json['required']
 
-	class NominationsSummary:
+	class NominationsSummary(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.current: int = json['current']
 			self.required: int = json['required']
 
@@ -101,14 +115,16 @@ class Beatmapset(BeatmapsetCompact):
 		self.tags: str = json['tags']
 
 # https://osu.ppy.sh/docs/#beatmapcompact
-class BeatmapCompact:
+class BeatmapCompact(JsonObjectWrapper):
 	# https://osu.ppy.sh/docs/#beatmapcompact-failtimes
-	class Failtimes:
+	class Failtimes(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.exit: Optional[list[int]] = json.get('exit')
 			self.fail: Optional[list[int]] = json.get('fail')
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.beatmapset_id: int = json['beatmapset_id']
 		self.difficulty_rating: float = json['difficulty_rating']
 		self.id: int = json['id']
@@ -147,8 +163,9 @@ class Beatmap(BeatmapCompact):
 		self.ranked: int = json['ranked']
 
 # https://osu.ppy.sh/docs/#beatmapdifficultyattributes
-class BeatmapDifficultyAttributes:
+class BeatmapDifficultyAttributes(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.max_combo: int = json['max_combo']
 		self.star_rating: float = json['star_rating']
 
@@ -171,22 +188,25 @@ class BeatmapDifficultyAttributes:
 		self.colour_difficulty: Optional[float] = json.get('colour_difficulty')
 
 # https://osu.ppy.sh/docs/#usercompact
-class UserCompact:
+class UserCompact(JsonObjectWrapper):
 	# https://osu.ppy.sh/docs/#usercompact-profilebanner
-	class ProfileBanner:
+	class ProfileBanner(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.id: int = json['id']
 			self.tournament_id: int = json['tournament_id']
 			self.image: str = json['image']
 
-	class RankHighest:
+	class RankHighest(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.rank: int = json['rank']
 			self.updated_at: datetime = datetime.fromisoformat(json['updated_at'])
 
 	# https://osu.ppy.sh/docs/#usercompact-useraccounthistory
-	class AccountHistory:
+	class AccountHistory(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.description: str = json['description']
 			self.id: int = json['id']
 			self.length_seconds: int = json['length']
@@ -195,8 +215,9 @@ class UserCompact:
 			self.type: Literal['note', 'restriction', 'silence'] = json['type']
 
 	# https://osu.ppy.sh/docs/#usercompact-userbadge
-	class Badge:
+	class Badge(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.awarded_at: datetime = datetime.fromisoformat(json['awarded_at'])
 			self.description: str = json['description']
 			self.image_url: str = json['image_url']
@@ -204,28 +225,33 @@ class UserCompact:
 
 	# https://osu.ppy.sh/docs/#usermonthlyplaycount
 	# link goes to nothing...
-	class MonthlyPlaycount:
+	class MonthlyPlaycount(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.start_date: str = json['start_date']
 			self.count: int = json['count']
 
 	# undocumented, built by looking at raw User
-	class Page:
+	class Page(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.html: str = json['html']
 			self.raw: str = json['raw']
 
-	class Country:
+	class Country(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.code: str = json['code']
 			self.name: str = json['name']
 
-	class Achievement:
+	class Achievement(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.achieved_at: datetime = datetime.fromisoformat(json['achieved_at'])
 			self.achievement_id: int = json['achievement_id']
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.avatar_url: str = json['avatar_url']
 		self.country_code: str = json['country_code']
 		self.default_group: Optional[str] = json.get('default_group')
@@ -275,14 +301,16 @@ class UserCompact:
 
 # https://osu.ppy.sh/docs/#user
 class User(UserCompact):
-	class Cover:
+	class Cover(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.custom_url: str = json['custom_url']
 			self.url: str = json['url']
 			self.id = json['id']
 
-	class Kudosu:
+	class Kudosu(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.total: int = json['total']
 			self.available: int = json['available']
 
@@ -307,26 +335,29 @@ class User(UserCompact):
 		self.website: Optional[str] = json.get('website')
 
 # https://osu.ppy.sh/docs/#event-user
-class EventUser:
+class EventUser(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.username: str = json['username']
 		self.url: str = json['url']
 		self.previous_username: Optional[str] = json['previousUsername']
 
 # https://osu.ppy.sh/docs/#event-beatmap
-class EventBeatmap:
+class EventBeatmap(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.title: str = json['title']
 		self.url: str = json['url']
 
 # https://osu.ppy.sh/docs/#event-beatmapset
-class EventBeatmapset:
+class EventBeatmapset(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.title: str = json['title']
 		self.url: str = json['url']
 
 # https://osu.ppy.sh/docs/#event
-class Event:
+class Event(JsonObjectWrapper):
 	# https://osu.ppy.sh/docs/#event-type
 	Type = Literal[
 		'achievement',
@@ -345,6 +376,8 @@ class Event:
 	]
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
+
 		# these attributes are always present
 		self.created_at = datetime.fromisoformat(json['created_at'])
 		self.id: int = json['id']
@@ -410,9 +443,10 @@ class Event:
 		# self.user
 
 # https://osu.ppy.sh/docs/index.html#score
-class Score:
-	class Statistics:
+class Score(JsonObjectWrapper):
+	class Statistics(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.count_50: int = json['count_50']
 			self.count_100: int = json['count_100']
 			self.count_300: int = json['count_300']
@@ -421,6 +455,7 @@ class Score:
 			self.count_miss: int = json['count_miss']
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.id: Optional[int] = json.get('id')
 		self.best_id: Optional[int] = json.get('best_id')
 		self.user_id: int = json['user_id']
@@ -449,32 +484,35 @@ class Score:
 		self.type: Optional[str] = json.get('type')
 
 #https://osu.ppy.sh/docs/index.html#beatmapuserscore
-class BeatmapUserScore:
+class BeatmapUserScore(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.position: int = json['position']
 		self.score = Score(json['score'])
 
 #https://osu.ppy.sh/docs/index.html#beatmapscores
-class BeatmapScores:
+class BeatmapScores(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.scores: list[Score] = [Score(o) for o in json['scores']]
 		self.userScore = optional_object(json, 'userScore', BeatmapUserScore)
 
-class SeasonalBackgrounds:
-	"""Represents a Seasonal Backgrounds object from the osu! API."""
-
-	class Background:
+class SeasonalBackgrounds(JsonObjectWrapper):
+	class Background(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.url: str = json['url']
 			self.user = UserCompact(json['user'])
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.ends_at = datetime.fromisoformat(json['ends_at'])
 		self.backgrounds = [SeasonalBackgrounds.Background(o) for o in json['backgrounds']]
 
 # https://osu.ppy.sh/docs/#updatestream
-class UpdateStream:
+class UpdateStream(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.display_name: Optional[str] = json.get('display_name')
 		self.id: int = json['id']
 		self.is_featured: bool = json['is_featured']
@@ -485,8 +523,9 @@ class UpdateStream:
 		self.user_count: int = json['user_count']
 
 # https://osu.ppy.sh/docs/#changelogentry
-class ChangelogEntry:
+class ChangelogEntry(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.category: str = json['category']
 		self.created_at: Optional[str] = json.get('created_at')
 		self.github_pull_request_id: Optional[int] = json.get('github_pull_request_id')
@@ -504,8 +543,9 @@ class ChangelogEntry:
 		self.message_html: Optional[str] = json.get('message_html')
 
 # https://osu.ppy.sh/docs/#githubuser
-class GithubUser:
+class GithubUser(JsonObjectWrapper):
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.display_name: str = json['display_name']
 		self.github_url: Optional[str] = json.get('github_url')
 		self.id: Optional[int] = json.get('id')
@@ -514,14 +554,16 @@ class GithubUser:
 		self.user_url: Optional[str] = json.get('user_url')
 
 # https://osu.ppy.sh/docs/#build
-class Build:
+class Build(JsonObjectWrapper):
 	# https://osu.ppy.sh/docs/#build-versions
-	class Versions:
+	class Versions(JsonObjectWrapper):
 		def __init__(self, json: JsonObject):
+			super().__init__(json)
 			self.next = optional_object(json, 'github_user', Build)
 			self.previous = optional_object(json, 'github_user', Build)
 
 	def __init__(self, json: JsonObject):
+		super().__init__(json)
 		self.created_at: str = json['created_at']
 		self.display_version: str = json['display_version']
 		self.id: int = json['id']
