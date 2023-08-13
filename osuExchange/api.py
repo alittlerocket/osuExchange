@@ -47,3 +47,11 @@ def post(
 	json: Optional[JsonObject] = None
 ) -> requests.Response:
 	return error_check(requests.post(BASE_URL + path, params, json=json, headers=make_headers(token)))
+
+def delete(
+	path: str, *,
+	token: Optional[str] = None,
+	params: Optional[JsonObject] = None,
+	json: Optional[JsonObject] = None
+) -> requests.Response:
+	return error_check(requests.delete(BASE_URL + path, params=params, json=json, headers=make_headers(token)))

@@ -1,4 +1,4 @@
-from typing import Sequence, Literal, Optional
+from typing import Sequence, Optional
 from osuExchange import api
 from osuExchange.typing import GameMode, JsonObject
 from osuExchange.structures import (

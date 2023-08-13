@@ -45,7 +45,7 @@ def get_access_token(
 
 	class CodeHandler(BaseHTTPRequestHandler):
 		# Override log_message to suppress printing to stdout
-		def log_message(self):
+		def log_message(self, format, *args):
 			pass
 
 		# Handle Chrome's /favicon.ico request (?)

@@ -575,3 +575,16 @@ class Build(JsonObjectWrapper):
 		# Optional attributes
 		self.changelog_entries: Optional[list[ChangelogEntry]] = optional_object_list(json, 'changelog_entries', ChangelogEntry)
 		self.versions: Optional[Build.Versions] = optional_object(json, 'versions', Build.Versions)
+
+# https://osu.ppy.sh/docs/#commentablemeta
+class CommentableMeta(JsonObjectWrapper):
+	class CurrentUserAttributes(JsonObjectWrapper):
+		def __init__(self, json: JsonObject):
+			self.
+
+	def __init__(self, json: JsonObject):
+		self.current_user_attributes = optional_object_list(json, 'current_user_attributes', CurrentUserAttributes)
+
+class CommentBundle(JsonObjectWrapper):
+	def __init__(self, json: JsonObject):
+		self.commentable_meta = optional_object_list(json, 'commentable_meta', CommentableMeta)
