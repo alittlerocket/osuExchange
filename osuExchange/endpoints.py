@@ -20,7 +20,7 @@ class UsersEndpoints:
 	
 	# https://osu.ppy.sh/docs/#get-user-recent-activity
 	def get_recent_activity(self, user_id: int) -> list[Event]:
-		return [Event(o) for o in api.get(f'/users/{user_id}/recent_activity').json()]
+		return [Event(o) for o in api.get(f'/users/{user_id}/recent_activity', token=self.token).json()]
 
 class BeatmapsEndpoints:
 	def __init__(self, token: str):
