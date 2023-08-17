@@ -11,7 +11,7 @@ class JsonObjectWrapper:
 		self.json = json
 	
 	def __repr__(self):
-		return dumps(self.json, indent=4)
+		return dumps(self.json, indent='\t')
 
 # https://osu.ppy.sh/docs/#nomination
 class Nomination(JsonObjectWrapper):
@@ -340,7 +340,7 @@ class EventUser(JsonObjectWrapper):
 		super().__init__(json)
 		self.username: str = json['username']
 		self.url: str = json['url']
-		self.previous_username: Optional[str] = json['previousUsername']
+		self.previous_username: Optional[str] = json.get('previousUsername')
 
 # https://osu.ppy.sh/docs/#event-beatmap
 class EventBeatmap(JsonObjectWrapper):
